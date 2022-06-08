@@ -1,18 +1,18 @@
-const { PubSub } = require("graphql-subscriptions");
-const pubsub = new PubSub();
-const {message} = require("./db");
+// const { PubSub } = require("graphql-subscriptions");
+// const pubsub = new PubSub();
+const { message } = require("./db");
 module.exports = {
   Query: {
-    message: (_, {id}, ctx) => {
+    message: (_, { id }, ctx) => {
       return message.find((value) => {
-          return value.id === id ?  value : ""
+        return value.id === id ? value : "";
       });
     },
   },
   Mutation: {
     createMessage: (_, { id, text }, context) => {
-        message.push({id,text})
-      pubsub.publish("CREATE_MESSAGE", {
+      message.push({ id, text });
+      context.pubsub.publish("CREATE_MESSAGE", {
         messageCreated: {
           id: id,
           text: text,
@@ -24,7 +24,7 @@ module.exports = {
   Subscription: {
     messageCreated: {
       subscribe: (_, {}, context) => {
-        return pubsub.asyncIterator("CREATE_MESSAGE");
+        return context.pubsub.asyncIterator("CREATE_MESSAGE");
       },
     },
   },
